@@ -1,0 +1,12 @@
+{
+  "name": "witness",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "WITNESS: the community-powered on-chain intelligence network",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
+  }
+}

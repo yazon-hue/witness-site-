@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WITNESS — Launch a coin</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .steps{list-style:none;margin:0;padding:0}
+  .steps li{display:grid;grid-template-columns:22px 1fr;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+  .steps .dot{width:10px;height:10px;border-radius:50%;margin-top:4px;background:var(--line2)}
+  .steps li.active{color:var(--text)}.steps li.active .dot{background:var(--blue);animation:pulse 1.2s ease-in-out infinite}
+  .steps li.done{color:var(--text)}.steps li.done .dot{background:var(--ok)}
+  .steps li.fail{color:var(--bad)}.steps li.fail .dot{background:var(--bad)}
+  .drop{display:flex;align-items:center;gap:16px;padding:14px;border:1px dashed var(--line2);border-radius:10px;cursor:pointer;background:none;color:inherit;text-align:left;font:inherit;width:100%}
+  .drop:hover{border-color:var(--blue)}
+  .thumb{width:64px;height:64px;border-radius:10px;object-fit:cover;background:var(--card);flex-shrink:0}
+</style>
+<script type="module" src="/js/launch.js"></script>
+</head>
+<body>
+<main class="wrap page">
+  <div class="grid-auto" style="grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:32px;align-items:start">
+    <section class="stack" style="gap:24px">
+      <div class="stack" style="gap:10px"><h1 class="title">Launch a coin</h1><p class="lede">Creates a real token on pump.fun, signed by your own wallet. WITNESS never holds your keys, and every launch made here is listed publicly below.</p></div>
+      <div id="unavailable" class="card pad hidden" style="border-color:rgba(245,185,66,.35);color:#E9D3A3;font-size:14px">Launching is not switched on for this site yet.</div>
+      <form id="form" class="card pad stack" style="gap:18px" novalidate>
+        <div class="f stack" style="gap:8px;font-size:13px;color:var(--soft)">Image
+          <button type="button" class="drop" id="drop"><img id="preview" class="thumb hidden" alt=""><span class="thumb" id="placeholder"></span><span class="stack" style="gap:4px"><span id="fileName">Choose an image</span><span class="hint">PNG, JPG, GIF or WEBP · under 2 MB · square works best</span></span></button>
+          <input id="file" type="file" accept="image/png,image/jpeg,image/gif,image/webp" class="hidden" aria-label="Token image">
+        </div>
+        <div class="grid-auto" style="grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:14px">
+          <label class="f">Name<input id="name" class="input" maxlength="32" placeholder="Up to 32 characters"></label>
+          <label class="f">Ticker<input id="symbol" class="input mono" maxlength="10" placeholder="Up to 10" style="text-transform:uppercase"></label>
+        </div>
+        <label class="f">Description<textarea id="description" class="input" rows="3" maxlength="1000" placeholder="What is this coin?"></textarea></label>
+        <div class="grid-auto" style="grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:14px">
+          <label class="f">X / Twitter<input id="twitter" class="input" placeholder="https://x.com/…"></label>
+          <label class="f">Telegram<input id="telegram" class="input" placeholder="https://t.me/…"></label>
+          <label class="f">Website<input id="website" class="input" placeholder="https://…"></label>
+        </div>
+        <div class="grid-auto" style="grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:14px">
+          <label class="f">Your initial buy (SOL)<input id="devBuy" class="input mono" type="number" min="0" step="0.01" value="0"><span class="hint">0 to launch without buying</span></label>
+          <label class="f">Slippage (%)<input id="slippage" class="input mono" type="number" min="1" max="50" value="10"></label>
+          <label class="f">Priority fee (SOL)<input id="priorityFee" class="input mono" type="number" min="0" max="0.01" step="0.0001" value="0.0005"></label>
+        </div>
+        <div style="border:1px solid rgba(245,185,66,.35);background:rgba(245,185,66,.06);color:#E9D3A3;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.55">This sends a real transaction on Solana mainnet. A launched coin cannot be deleted or edited, and any SOL spent on the initial buy is at market risk.</div>
+        <label class="row" style="gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);line-height:1.5"><input type="checkbox" id="ack" style="margin-top:3px;accent-color:var(--blue)">I understand this launch is permanent and public.</label>
+        <div class="err" id="formErr" role="alert"></div>
+        <button class="btn btn-p" id="launchBtn">Connect wallet to launch</button>
+      </form>
+    </section>
+    <aside class="stack" style="gap:16px">
+      <div class="card pad stack">
+        <span class="eyebrow" style="margin-bottom:6px">Review</span>
+        <div class="kv"><span>Coin</span><span id="rvName">—</span></div>
+        <div class="kv"><span>Creator wallet</span><span class="mono" id="rvWallet">Not connected</span></div>
+        <div class="kv"><span>Initial buy</span><span class="mono" id="rvBuy">0 SOL</span></div>
+        <div class="kv"><span>PumpPortal fee on buy (0.5%)</span><span class="mono" id="rvFee">0 SOL</span></div>
+        <div class="kv"><span>Priority fee</span><span class="mono" id="rvPrio">0.0005 SOL</span></div>
+        <div class="kv"><span>Network costs</span><span class="mono">~0.02 SOL</span></div>
+        <p class="hint" style="margin:10px 0 0">An estimate. Your wallet shows the exact total before you approve.</p>
+      </div>
+      <div class="card pad stack hidden" id="progressCard">
+        <span class="eyebrow" style="margin-bottom:6px">Launch progress</span>
+        <ol class="steps" id="steps">
+          <li data-k="upload"><span class="dot"></span>Uploading image and metadata to IPFS</li>
+          <li data-k="build"><span class="dot"></span>Building the create transaction</li>
+          <li data-k="sign"><span class="dot"></span>Approve in your wallet</li>
+          <li data-k="send"><span class="dot"></span>Sending to Solana</li>
+          <li data-k="confirm"><span class="dot"></span>Waiting for confirmation</li>
+        </ol>
+        <div class="err" id="runErr" role="alert"></div>
+      </div>
+      <div class="card pad stack hidden" id="doneCard" style="gap:14px;border-color:rgba(54,211,153,.4)">
+        <span class="eyebrow" style="color:var(--ok)">Live on pump.fun</span>
+        <div style="font-size:20px;font-weight:600" id="doneName"></div>
+        <div class="kv"><span>Mint</span><span class="mono break" id="doneMint" style="text-align:right"></span></div>
+        <div class="wrap-row" style="gap:10px"><a class="btn btn-p" id="pumpLink" target="_blank" rel="noopener">View on pump.fun</a><a class="btn btn-s" id="scanLink" target="_blank" rel="noopener">Transaction</a></div>
+      </div>
+    </aside>
+  </div>
+  <section class="stack" style="gap:16px">
+    <h2 style="margin:0;font-size:22px;font-weight:600">Launched from WITNESS</h2>
+    <div class="table"><div style="min-width:680px" id="launches"><div class="skeleton" style="height:120px;margin:12px"></div></div></div>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WITNESS — See what others miss.</title>
+<meta name="description" content="WITNESS is a community-powered blockchain intelligence network. Investigate wallets, submit on-chain evidence and earn reputation for findings that hold up.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<script type="module" src="/js/home.js"></script>
+</head>
+<body>
+<main>
+<section class="hero">
+  <svg class="net" viewBox="0 0 1440 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g stroke="#3987FF" stroke-width="1" fill="none" opacity=".35">
+      <path class="flow" d="M120 180 L330 120 L540 230 L760 150 L980 260 L1190 160 L1360 240"/>
+      <path class="flow slow" d="M80 520 L290 600 L470 470 L700 560 L930 480 L1150 590 L1380 500"/>
+      <path class="flow" d="M330 120 L290 600"/><path class="flow slow" d="M540 230 L470 470 L700 560"/>
+      <path class="flow" d="M980 260 L930 480"/><path class="flow slow" d="M1190 160 L1150 590"/><path class="flow" d="M760 150 L930 480 L1380 500"/>
+    </g>
+    <g fill="#42D9FF">
+      <circle class="node" cx="120" cy="180" r="3"/><circle class="node d2" cx="330" cy="120" r="4"/><circle class="node d3" cx="540" cy="230" r="3"/>
+      <circle class="node" cx="760" cy="150" r="3"/><circle class="node d2" cx="980" cy="260" r="5"/><circle class="node d3" cx="1190" cy="160" r="3"/>
+      <circle class="node" cx="1360" cy="240" r="3"/><circle class="node d3" cx="80" cy="520" r="3"/><circle class="node d2" cx="290" cy="600" r="4"/>
+      <circle class="node" cx="470" cy="470" r="3"/><circle class="node d3" cx="700" cy="560" r="3"/><circle class="node d2" cx="930" cy="480" r="4"/>
+      <circle class="node" cx="1150" cy="590" r="3"/><circle class="node d2" cx="1380" cy="500" r="3"/>
+    </g>
+    <g font-family="Geist Mono, monospace" font-size="11" fill="#8493A8" opacity=".5">
+      <text x="342" y="112">7xKp…Qm4R</text><text x="992" y="252">9aFw…T2nE</text><text x="300" y="625">Hc3d…8pLz</text><text x="942" y="505">tx 5e2a…09c4</text>
+    </g>
+  </svg>
+  <div class="veil" aria-hidden="true"></div>
+  <div class="wrap inner">
+    <div class="mono row" style="font-size:12px;letter-spacing:.2em;color:var(--cyan);gap:10px"><span style="width:24px;height:1px;background:var(--cyan)"></span>THE COMMUNITY-POWERED INTELLIGENCE NETWORK<span style="width:24px;height:1px;background:var(--cyan)"></span></div>
+    <h1>See what others miss.</h1>
+    <p class="lede" style="font-size:19px;max-width:580px">Investigate the blockchain. Discover hidden connections. Uncover the stories behind the transactions.</p>
+    <div class="wrap-row" style="gap:12px;justify-content:center;margin-top:8px">
+      <a class="btn btn-p btn-lg" href="/investigations">Explore investigations</a>
+      <a class="btn btn-s btn-lg" href="/app#explore">Start investigating</a>
+    </div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:110px">
+  <div class="grid-auto" style="grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden">
+    <div style="background:var(--bg2);padding:40px 36px 44px" class="stack"><div class="mono" style="font-size:12px;color:var(--blue);letter-spacing:.14em;margin-bottom:16px">01 — INVESTIGATE</div><p style="margin:0;font-size:20px;line-height:1.45;font-weight:500">Follow transactions, explore wallets and discover connections.</p></div>
+    <div style="background:var(--bg2);padding:40px 36px 44px" class="stack"><div class="mono" style="font-size:12px;color:var(--blue);letter-spacing:.14em;margin-bottom:16px">02 — SUBMIT EVIDENCE</div><p style="margin:0;font-size:20px;line-height:1.45;font-weight:500">Share your findings and let the community examine the proof.</p></div>
+    <div style="background:var(--bg2);padding:40px 36px 44px" class="stack"><div class="mono" style="font-size:12px;color:var(--blue);letter-spacing:.14em;margin-bottom:16px">03 — BUILD REPUTATION</div><p style="margin:0;font-size:20px;line-height:1.45;font-weight:500">Earn recognition for accurate discoveries and valuable contributions.</p></div>
+  </div>
+</section>
+
+<section class="wrap" style="padding-top:100px;padding-bottom:100px">
+  <div class="page-head" style="margin-bottom:28px">
+    <div class="stack" style="gap:12px"><div class="row mono" style="gap:10px;font-size:12px;letter-spacing:.16em;color:var(--muted)"><span class="live"></span>LIVE INTELLIGENCE FEED</div>
+      <h2 style="margin:0;font-size:36px;font-weight:600;letter-spacing:-.025em">Recent investigations</h2></div>
+    <a href="/investigations" style="font-size:14px;color:var(--cyan)">View all →</a>
+  </div>
+  <div id="feed" class="grid-auto" style="grid-template-columns:repeat(auto-fit,minmax(min(460px,100%),1fr))">
+    <div class="skeleton" style="height:210px"></div><div class="skeleton" style="height:210px"></div>
+  </div>
+</section>
+
+<section style="border-top:1px solid #121B2B;border-bottom:1px solid #121B2B;background:#0A0E17">
+  <div class="wrap grid-auto" style="padding-top:110px;padding-bottom:110px;grid-template-columns:repeat(auto-fit,minmax(min(420px,100%),1fr));gap:64px;align-items:center">
+    <div class="stack" style="gap:24px">
+      <h2 style="margin:0;font-size:clamp(36px,4.5vw,52px);line-height:1.08;font-weight:600;letter-spacing:-.03em">Every transaction tells a story.</h2>
+      <p class="lede" style="font-size:17px">WITNESS separates what the chain proves from what investigators think it means. Every finding is labelled, so you always know what you are looking at.</p>
+      <div class="stack">
+        <div class="kv" style="justify-content:flex-start;gap:20px;padding:14px 0"><span class="mono l-confirmed" style="width:120px;font-size:11px;letter-spacing:.1em">CONFIRMED</span><span style="color:var(--soft);font-size:14px">Transactions anyone can check on-chain. WITNESS verifies each one automatically.</span></div>
+        <div class="kv" style="justify-content:flex-start;gap:20px;padding:14px 0"><span class="mono l-interp" style="width:120px;font-size:11px;letter-spacing:.1em">INTERPRETATION</span><span style="color:var(--soft);font-size:14px">What an investigator believes the facts show, with reasoning attached.</span></div>
+        <div class="kv" style="justify-content:flex-start;gap:20px;padding:14px 0"><span class="mono l-spec" style="width:120px;font-size:11px;letter-spacing:.1em">SPECULATION</span><span style="color:var(--soft);font-size:14px">Open questions. Clearly flagged, never presented as fact.</span></div>
+      </div>
+    </div>
+    <div class="card" style="padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.45)">
+      <div class="row mono" style="justify-content:space-between;font-size:11px;color:var(--muted);padding:4px 6px 14px;border-bottom:1px solid var(--line)"><span>TRACE · SOLANA</span><span>EXAMPLE</span></div>
+      <svg viewBox="0 0 520 380" role="img" aria-label="Illustration of funds moving from a deployer wallet through a funding wallet into fresh wallets and a DEX" style="width:100%;height:auto;display:block">
+        <g fill="none" stroke-width="1.4">
+          <path class="flow" d="M70 190 C150 190 160 90 250 90" stroke="#3987FF"/><path class="flow" d="M70 190 C150 190 160 290 250 290" stroke="#3987FF"/>
+          <path class="flow slow" d="M250 90 C330 90 340 140 430 140" stroke="#42D9FF"/><path class="flow slow" d="M250 290 C330 290 340 240 430 240" stroke="#42D9FF"/>
+          <path d="M250 114 L250 266" stroke="#F5B942" stroke-dasharray="2 6" opacity=".7"/>
+        </g>
+        <g font-family="Geist Mono, monospace" font-size="10.5">
+          <rect x="14" y="166" width="112" height="48" rx="8" fill="#111A29" stroke="#22314A"/><text x="26" y="186" fill="#8493A8">DEPLOYER</text><text x="26" y="203" fill="#F1F5FC">7xKp…Qm4R</text>
+          <rect x="194" y="66" width="112" height="48" rx="8" fill="#111A29" stroke="#22314A"/><text x="206" y="86" fill="#8493A8">FUNDER</text><text x="206" y="103" fill="#F1F5FC">9aFw…T2nE</text>
+          <rect x="194" y="266" width="112" height="48" rx="8" fill="#111A29" stroke="#22314A"/><text x="206" y="286" fill="#8493A8">FRESH WALLET</text><text x="206" y="303" fill="#F1F5FC">Hc3d…8pLz</text>
+          <rect x="374" y="116" width="128" height="48" rx="8" fill="#111A29" stroke="#3987FF"/><text x="386" y="136" fill="#8493A8">DEX</text><text x="386" y="153" fill="#F1F5FC">412.6 SOL out</text>
+          <rect x="374" y="216" width="128" height="48" rx="8" fill="#111A29" stroke="#22314A"/><text x="386" y="236" fill="#8493A8">EXCHANGE</text><text x="386" y="253" fill="#F1F5FC">deposit</text>
+          <text x="262" y="196" fill="#F5B942">same funder?</text>
+        </g>
+      </svg>
+      <div class="wrap-row mono" style="gap:16px;padding:12px 6px 2px;border-top:1px solid var(--line);font-size:11px;color:var(--muted)">
+        <span class="row" style="gap:6px"><span style="width:14px;height:2px;background:var(--blue)"></span>Confirmed transfer</span>
+        <span class="row" style="gap:6px"><span style="width:14px;height:2px;background:var(--warn)"></span>Interpretation, under review</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap stack" style="padding-top:140px;padding-bottom:140px;align-items:center;text-align:center;gap:32px">
+  <h2 style="margin:0;max-width:820px;font-size:clamp(34px,4.6vw,56px);line-height:1.1;font-weight:600;letter-spacing:-.03em">The blockchain is public. <span class="muted">The intelligence is yours to uncover.</span></h2>
+  <a class="btn btn-p btn-lg" href="/app">Enter WITNESS</a>
+</section>
+</main>
+</body>
+</html>

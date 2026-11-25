@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WITNESS — Leaderboard</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<script type="module" src="/js/leaderboard.js"></script>
+</head>
+<body>
+<main class="wrap page">
+  <div class="page-head">
+    <div class="stack" style="gap:12px"><h1 class="title">Leaderboard</h1><p class="lede">Ranked by reputation, which only moves when findings survive review. Volume alone earns nothing.</p></div>
+    <div class="wrap-row" style="gap:6px" id="periods"></div>
+  </div>
+  <div id="top" class="grid-auto" style="grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr))"></div>
+  <div class="table"><div style="min-width:760px" id="rows"><div class="skeleton" style="height:240px;margin:12px"></div></div></div>
+</main>
+</body>
+</html>

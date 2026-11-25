@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WITNESS — Investigations</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<script type="module" src="/js/investigations.js"></script>
+</head>
+<body>
+<main class="wrap page">
+  <div class="page-head">
+    <div class="stack" style="gap:12px"><h1 class="title">Investigations</h1><p class="lede">Every case shows what is confirmed on-chain, what is interpreted, and what is still open.</p></div>
+    <a class="btn btn-p" href="/app#submit">Submit a discovery</a>
+  </div>
+  <div class="wrap-row" style="gap:10px;align-items:center">
+    <label for="q" class="sr">Search investigations</label>
+    <input id="q" class="input" style="flex:1 1 320px" placeholder="Search by title, wallet or investigator" autocomplete="off">
+    <div class="wrap-row" style="gap:6px" id="tabs"></div>
+  </div>
+  <div class="table"><div style="min-width:880px" id="rows"><div class="skeleton" style="height:300px;margin:12px"></div></div></div>
+</main>
+</body>
+</html>

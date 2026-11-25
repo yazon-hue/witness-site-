@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WITNESS — How it works</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+<script type="module" src="/js/how.js"></script>
+</head>
+<body>
+<main class="wrap page" style="gap:88px;padding-top:80px">
+  <div class="stack" style="gap:20px;max-width:760px">
+    <div class="mono" style="font-size:12px;letter-spacing:.18em;color:var(--cyan)">HOW IT WORKS</div>
+    <h1 style="margin:0;font-size:clamp(38px,5vw,60px);line-height:1.06;font-weight:600;letter-spacing:-.035em">Don't reward noise. Reward the truth.</h1>
+    <p class="lede" style="font-size:18px">WITNESS turns public blockchain data into reviewed intelligence. Anyone can investigate. Only findings that hold up earn reputation.</p>
+  </div>
+  <div class="grid-auto" style="grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden">
+    <div style="background:var(--bg2);padding:32px 28px 36px" class="stack"><span class="mono" style="font-size:12px;color:var(--blue);letter-spacing:.12em">01</span><h2 style="margin:14px 0 10px;font-size:20px;font-weight:600">Investigate</h2><p style="margin:0;font-size:14px;line-height:1.65;color:var(--muted)">Paste any Solana wallet or transaction into Explore. Follow funds, see counterparties and token holdings.</p></div>
+    <div style="background:var(--bg2);padding:32px 28px 36px" class="stack"><span class="mono" style="font-size:12px;color:var(--blue);letter-spacing:.12em">02</span><h2 style="margin:14px 0 10px;font-size:20px;font-weight:600">Submit evidence</h2><p style="margin:0;font-size:14px;line-height:1.65;color:var(--muted)">Publish a finding with transaction signatures attached. Each one is checked against Solana automatically.</p></div>
+    <div style="background:var(--bg2);padding:32px 28px 36px" class="stack"><span class="mono" style="font-size:12px;color:var(--blue);letter-spacing:.12em">03</span><h2 style="margin:14px 0 10px;font-size:20px;font-weight:600">Community review</h2><p style="margin:0;font-size:14px;line-height:1.65;color:var(--muted)">Other investigators confirm or challenge the reasoning. Nobody can review their own case.</p></div>
+    <div style="background:var(--bg2);padding:32px 28px 36px" class="stack"><span class="mono" style="font-size:12px;color:var(--blue);letter-spacing:.12em">04</span><h2 style="margin:14px 0 10px;font-size:20px;font-weight:600">Earn reputation</h2><p style="margin:0;font-size:14px;line-height:1.65;color:var(--muted)">Verified findings earn reputation. Findings that fall apart under challenge cost it.</p></div>
+  </div>
+  <section class="grid-auto" style="grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr));gap:56px;align-items:start">
+    <div class="stack" style="gap:16px"><h2 style="margin:0;font-size:34px;font-weight:600;letter-spacing:-.025em;line-height:1.15">Three kinds of claim, never mixed up.</h2><p class="lede">Every investigation is split into labelled layers, so readers always know which statements are facts and which are opinions.</p></div>
+    <div class="stack">
+      <div class="kv" style="justify-content:flex-start;gap:20px;padding:22px 0"><span class="mono l-confirmed" style="width:140px;flex-shrink:0;font-size:12px;letter-spacing:.1em">CONFIRMED</span><div class="stack" style="gap:6px"><span style="color:var(--text);font-size:15px">Verifiable on-chain data</span><span style="font-size:14px;line-height:1.55">Transaction signatures, checked automatically. Each is flagged if it isn't found, or if the investigated wallet isn't part of it.</span></div></div>
+      <div class="kv" style="justify-content:flex-start;gap:20px;padding:22px 0"><span class="mono l-interp" style="width:140px;flex-shrink:0;font-size:12px;letter-spacing:.1em">INTERPRETATION</span><div class="stack" style="gap:6px"><span style="color:var(--text);font-size:15px">What the investigator thinks it means</span><span style="font-size:14px;line-height:1.55">Must rest on the confirmed data. Reviewers judge the reasoning.</span></div></div>
+      <div class="kv" style="justify-content:flex-start;gap:20px;padding:22px 0"><span class="mono l-spec" style="width:140px;flex-shrink:0;font-size:12px;letter-spacing:.1em">SPECULATION</span><div class="stack" style="gap:6px"><span style="color:var(--text);font-size:15px">Open questions and hunches</span><span style="font-size:14px;line-height:1.55">Always labelled. Never shown as fact, and never earns reputation on its own.</span></div></div>
+    </div>
+  </section>
+  <section class="grid-auto" style="grid-template-columns:repeat(auto-fit,minmax(min(380px,100%),1fr));gap:56px;align-items:start">
+    <div class="stack" style="gap:16px"><h2 style="margin:0;font-size:34px;font-weight:600;letter-spacing:-.025em;line-height:1.15">How status and reputation move</h2><p class="lede" id="status-rule">Reputation is earned slowly and lost quickly. That keeps the incentive pointed at accuracy, not attention.</p></div>
+    <div class="card" style="overflow:hidden" id="points"></div>
+  </section>
+  <section class="card wrap-row" style="padding:48px;justify-content:space-between;align-items:center;gap:24px">
+    <div class="stack" style="gap:8px"><h2 style="margin:0;font-size:28px;font-weight:600;letter-spacing:-.02em">Ready to look closer?</h2><p class="muted" style="margin:0;font-size:15px">Start with an open case, or paste any wallet into Explore.</p></div>
+    <div class="wrap-row" style="gap:10px"><a class="btn btn-s btn-lg" href="/investigations">Browse investigations</a><a class="btn btn-p btn-lg" href="/app">Enter WITNESS</a></div>
+  </section>
+</main>
+</body>
+</html>
