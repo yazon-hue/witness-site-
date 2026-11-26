@@ -373,9 +373,22 @@ async function serveStatic(req, res, pathname) {
   const full = path.normalize(path.join(PUBLIC, file));
   if (!full.startsWith(PUBLIC + path.sep)) return false;
   try {
-    if (!(await stat(full)).isFile()) return false;
+    const info = await stat(full);
+    if (!info.isFile()) return false;
     const ext = path.extname(full);
-    res.writeHead(200, { 'Content-Type': TYPES[ext] || 'application/octet-stream', 'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=300', ...SECURITY });
+    // Browsers keep a copy but must check with us before using it, so a new deploy shows up
+    // on the next visit. If the file hasn't changed we answer "304 Not Modified" with no body.
+    // Bundled libraries (/vendor) never change under the same name, so they cache for a week.
+    const etag = `"${info.size.toString(36)}-${Math.floor(info.mtimeMs).toString(36)}"`;
+    const headers = {
+      'Content-Type': TYPES[ext] || 'application/octet-stream',
+      'Cache-Control': file.startsWith('vendor/') ? 'public, max-age=604800' : 'no-cache',
+      ETag: etag,
+      'Last-Modified': info.mtime.toUTCString(),
+      ...SECURITY,
+    };
+    if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers); res.end(); return true; }
+    res.writeHead(200, headers);
     res.end(await readFile(full));
     return true;
   } catch { return false; }
