@@ -4,6 +4,7 @@ import { mountChrome, api, $, $$ } from './core.js';
 import { mountLens } from './lens.js';
 import { mountCloser } from './closer.js';
 import { initMotion } from './motion.js';
+import { mountAudio } from './audio.js';
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -15,6 +16,7 @@ const ease = (t) => 1 - Math.pow(1 - t, 3);
 
 mountChrome('home', { headerClass: 'overlay' });
 const header = $('.site-header');
+const sound = mountAudio({ header });
 
 /** 0 when the element's top hits the bottom of the viewport, 1 when its bottom leaves the top. */
 function progressOf(el, start = 1, end = 0) {
@@ -127,6 +129,7 @@ const closerApi = mountCloser($('#closer'), $('#net3d'), {
   reduced,
   external: motionOn,
   onStage(stage, p, count) {
+    sound.closer(stage);
     stageEls.forEach((li, i) => { li.classList.toggle('on', reduced || i === stage); li.classList.toggle('done', !reduced && i < stage); });
     hudDepth.textContent = `Depth ${String(stage + 1).padStart(2, '0')}`;
     hudNodes.textContent = `${count} wallet${count === 1 ? '' : 's'}`;
