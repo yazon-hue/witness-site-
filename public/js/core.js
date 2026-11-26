@@ -98,10 +98,10 @@ function renderHeaderAuth() {
   $('#signout')?.addEventListener('click', signOut);
 }
 
-export function mountChrome(active) {
+export function mountChrome(active, opts = {}) {
   const links = [['/app#explore', 'Explore', 'explore'], ['/investigations', 'Investigations', 'investigations'], ['/leaderboard', 'Leaderboard', 'leaderboard'], ['/how-it-works', 'How it works', 'how'], ['/launch', 'Launch', 'launch']];
   const header = document.createElement('header');
-  header.className = 'site-header';
+  header.className = `site-header${opts.headerClass ? ` ${opts.headerClass}` : ''}`;
   header.innerHTML = `<div class="wrap"><nav aria-label="Main"><a class="logo" href="/">${LOGO}WITNESS</a>
     <div class="navlinks">${links.map(([h, l, k]) => `<a href="${h}" class="${k === active ? 'on' : ''}">${l}</a>`).join('')}</div>
     <div id="auth-slot"><button class="wallet-btn"><span class="d"></span><span>Connect Wallet</span></button></div></nav></div>`;
