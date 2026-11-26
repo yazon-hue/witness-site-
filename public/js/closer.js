@@ -44,10 +44,12 @@ function buildGraph() {
   return { nodes, edges };
 }
 
-export function mountCloser(section, canvas, { reduced, onStage }) {
+export function mountCloser(section, canvas, { reduced, external = false, onStage }) {
   const ctx = canvas.getContext('2d');
   const { nodes, edges } = buildGraph();
   let W = 0, H = 0, dpr = 1, target = reduced ? 1 : 0, prog = target, visible = false, lastStage = -1;
+  const focusPt = { x: 0, y: 0 };
+  const litHub = nodes.findIndex((n) => n.big && n.hl && n.at > 0.5);
   const t0 = performance.now();
 
   function resize() {
@@ -61,16 +63,19 @@ export function mountCloser(section, canvas, { reduced, onStage }) {
   function draw(now) {
     const t = reduced ? 0 : (now - t0) / 1000;
     const p = prog, mobile = W < 760;
-    const e = smooth(0, 1, p);
-    const dist = 4.2 + 16 * Math.pow(e, 1.3);
+    const e = smooth(0, 0.8, p);
+    const fly = smooth(0.78, 1, p);                      // the camera travels into the lit cluster
+    const dist = (4.2 + 16 * Math.pow(e, 1.3)) * (1 - 0.88 * fly);
     const yaw = -0.35 + p * 1.5 + t * 0.025, pitch = 0.22 + 0.12 * Math.sin(p * 3.1);
     const cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
     const focal = Math.min(W, H) * (mobile ? 1.0 : 1.15);
     const cx0 = W * (mobile ? 0.5 : 0.62), cy0 = H * (mobile ? 0.36 : 0.5);
     // look slightly toward the funder early on, then back to the whole
-    const lx = 1.2 * smooth(0.12, 0.35, p) * (1 - smooth(0.55, 0.9, p)), ly = -0.35 * smooth(0.12, 0.35, p) * (1 - smooth(0.55, 0.9, p));
+    const early = smooth(0.12, 0.35, p) * (1 - smooth(0.55, 0.78, p));
+    const HB = nodes[litHub];
+    const lx = 1.2 * early + HB.x * fly, ly = -0.35 * early + HB.y * fly, lz = HB.z * fly;
     const P = nodes.map((n) => {
-      const x = n.x - lx, y = n.y - ly, z = n.z;
+      const x = n.x - lx, y = n.y - ly, z = n.z - lz;
       const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
       const y2 = y * cp - z1 * sp, z2 = y * sp + z1 * cp + dist;
       const s = focal / Math.max(z2, 0.5);
@@ -83,7 +88,7 @@ export function mountCloser(section, canvas, { reduced, onStage }) {
     for (const ed of edges) {
       const A = P[ed.a], Bn = P[ed.b];
       const v = smooth(ed.at, ed.at + 0.07, p) * Math.min(A.vis, 1);
-      if (v <= 0.01) continue;
+      if (v <= 0.01 || A.z < 0.35 || Bn.z < 0.35) continue;
       const depth = Math.abs((A.z + Bn.z) / 2 - dist) / dist;
       const k = v;
       const ex = A.sx + (Bn.sx - A.sx) * k, ey = A.sy + (Bn.sy - A.sy) * k;
@@ -96,21 +101,23 @@ export function mountCloser(section, canvas, { reduced, onStage }) {
       }
     }
     // travelling packets on lit edges
-    if (!reduced) for (const ed of edges) {
-      if (!ed.hl) continue;
-      const v = smooth(ed.at + 0.05, ed.at + 0.1, p); if (v <= 0) continue;
-      const A = P[ed.a], Bn = P[ed.b], f = (t * 0.5 + ed.a * 0.13) % 1;
-      ctx.fillStyle = 'rgba(200,240,255,0.95)';
-      ctx.beginPath(); ctx.arc(A.sx + (Bn.sx - A.sx) * f, A.sy + (Bn.sy - A.sy) * f, 1.8, 0, 7); ctx.fill();
-    }
+    if (!reduced) edges.forEach((ed, k) => {
+      if (!ed.hl && (k % 5 || p < 0.7)) return;
+      const v = smooth(ed.at + 0.05, ed.at + 0.1, p); if (v <= 0) return;
+      const A = P[ed.a], Bn = P[ed.b]; if (A.z < 0.35 || Bn.z < 0.35) return;
+      const f = (t * (ed.hl ? 0.5 : 0.28) + ed.a * 0.13) % 1;
+      ctx.fillStyle = ed.hl ? 'rgba(200,240,255,0.95)' : `rgba(241,245,252,${(0.5 * smooth(0.7, 0.8, p)).toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(A.sx + (Bn.sx - A.sx) * f, A.sy + (Bn.sy - A.sy) * f, ed.hl ? 1.8 : 1.2, 0, 7); ctx.fill();
+    });
     // nodes, far to near, with depth-of-field
     const order = P.map((_, i) => i).sort((i, j) => P[j].z - P[i].z);
     for (const i of order) {
-      const q = P[i]; if (q.vis <= 0.01) continue;
+      const q = P[i]; if (q.vis <= 0.01 || q.z < 0.35) continue;
       const blur = Math.min(Math.abs(q.z - dist) / (dist * 0.55), 1.6);
       const base = (q.n.big ? 0.09 : 0.05) * q.s * (0.6 + 0.4 * q.vis);
-      const rad = Math.max(1.2, base * (1 + blur * 2.2));
-      const alpha = q.vis * (q.n.hl ? 1 : 0.85) / (1 + blur * 2.4);
+      const rad = Math.min(140, Math.max(1.2, base * (1 + blur * 2.2)));
+      const near = Math.min(1, (q.z - 0.35) / 1.2);    // fade nodes as they pass the lens
+      const alpha = near * q.vis * (q.n.hl ? 1 : 0.85) / (1 + blur * 2.4);
       const g = ctx.createRadialGradient(q.sx, q.sy, 0, q.sx, q.sy, rad);
       if (q.n.hl) { g.addColorStop(0, `rgba(200,240,255,${alpha})`); g.addColorStop(0.35, `rgba(66,217,255,${alpha})`); g.addColorStop(1, 'rgba(57,135,255,0)'); }
       else { g.addColorStop(0, `rgba(241,245,252,${alpha})`); g.addColorStop(0.45 - blur * 0.2, `rgba(241,245,252,${alpha * 0.5})`); g.addColorStop(1, 'rgba(241,245,252,0)'); }
@@ -121,7 +128,7 @@ export function mountCloser(section, canvas, { reduced, onStage }) {
     ctx.font = `500 ${mobile ? 10 : 11}px "Geist Mono", ui-monospace, monospace`;
     ctx.textBaseline = 'middle';
     for (const q of P) {
-      if (!q.n.label || q.vis < 0.3) continue;
+      if (!q.n.label || q.vis < 0.3 || q.z < 0.8) continue;
       // as the full network appears, only the first wallet keeps its label
       const fade = q.n.at === 0 ? 1 : 1 - smooth(0.6, 0.78, p);
       if (fade <= 0.01) continue;
@@ -134,15 +141,16 @@ export function mountCloser(section, canvas, { reduced, onStage }) {
       if (q.n.amount && p > 0.22) { ctx.fillStyle = `rgba(66,217,255,${a * smooth(0.22, 0.3, p)})`; ctx.fillText(`← ${q.n.amount}`, lx2 + 14, ly2 + 15); }
     }
 
+    const hb = P[litHub]; if (hb.z > 0.35) { focusPt.x = hb.sx; focusPt.y = hb.sy; }
     const stage = p < 0.18 ? 0 : p < 0.38 ? 1 : p < 0.6 ? 2 : 3;
     const count = P.filter((q) => q.vis > 0.5).length;
-    if (stage !== lastStage || true) onStage?.(stage, p, count);
+    onStage?.(stage, p, count);
     lastStage = stage;
   }
 
   function tick(now) {
     if (visible) {
-      if (!reduced) {
+      if (!reduced && !external) {
         const r = section.getBoundingClientRect();
         const total = r.height - innerHeight;
         target = Math.min(1, Math.max(0, -r.top / Math.max(total, 1)));
@@ -157,4 +165,8 @@ export function mountCloser(section, canvas, { reduced, onStage }) {
   window.addEventListener('resize', resize);
   resize();
   requestAnimationFrame(tick);
+  return {
+    setTarget(v) { target = v; },
+    focus() { return { x: focusPt.x, y: focusPt.y, w: W, h: H }; },
+  };
 }

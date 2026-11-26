@@ -241,6 +241,17 @@
 .finale-tag{margin:12px 0 0;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--grey)}
 .finale-word{position:absolute;left:50%;bottom:-.24em;translate:-50% 0;font-weight:800;font-size:20.5vw;line-height:1;letter-spacing:-.07em;color:transparent;-webkit-text-stroke:1px rgba(57,135,255,.18);white-space:nowrap;pointer-events:none;user-select:none}
 
+/* ── scroll choreography hooks (inert until motion.js runs) ──── */
+.hero-iris,.closer-iris{position:absolute;inset:0;background:var(--warm);clip-path:circle(0% at 50% 50%);pointer-events:none;z-index:4}
+.w{display:inline-block;white-space:nowrap}
+.c{display:inline-block}
+.gsap .ln>span{transform:none!important;transition:none!important}
+.gsap .finale-mark .draw{transition:none}
+.gsap .hero-title,.gsap .closer-title{perspective:900px}
+.gsap .trace-net{will-change:transform}
+.trace-sig{fill:var(--blue)}
+.trace-sig-halo{fill:rgba(57,135,255,.18)}
+
 /* ── reduced motion ──────────────────────────────────────────── */
 @media (prefers-reduced-motion:reduce){
   .ln>span,.rv{transform:none!important;opacity:1!important;transition:none!important}

@@ -11,7 +11,7 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform vec2 uRes;uniform float uTime;uniform vec2 uMouse;uniform float uScroll;uniform vec2 uCenter;uniform float uScale;
+uniform vec2 uRes;uniform float uTime;uniform vec2 uMouse;uniform float uScroll;uniform vec2 uCenter;uniform float uScale;uniform float uWarp;
 #define PI 3.14159265
 float hash(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
 float noise(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
@@ -31,6 +31,7 @@ void main(){
   float md=length(p-m*3.);
   p+=(p-m*3.)*.012*sin(md*30.-uTime*1.2)*exp(-md*3.);   // soft displacement around the pointer
   p/=1.+uScroll*1.8;                                     // push into the lens as the hero scrolls away
+  float rw=length(p);p+=p*uWarp*.035*sin(rw*38.-uTime*4.);  // ripple driven by scroll speed
   float r=length(p),a=atan(p.y,p.x),t=uTime;
   vec2 L=normalize(vec2(-.55,.75)+m*4.);
   float facing=.5+.5*dot(p/(r+1e-4),L);
@@ -38,7 +39,8 @@ void main(){
   float beam=pow(max(dot(normalize(p+1e-4),L),0.),6.)*smoothstep(1.4,.2,r);
   col+=vec3(.03,.07,.18)*beam*.6;
   float lit=.18+1.4*pow(facing,4.);
-  col.r+=barrel(r*1.004,a)*lit*.78;col.g+=barrel(r,a)*lit*.86;col.b+=barrel(r*.996,a)*lit;
+  float ca=.004+uWarp*.012;
+  col.r+=barrel(r*(1.+ca),a)*lit*.78;col.g+=barrel(r,a)*lit*.86;col.b+=barrel(r*(1.-ca),a)*lit;
   float glass=smoothstep(.372,0.,r);
   col+=vec3(.010,.028,.075)*glass;
   float ap=.115+.018*sin(t*.31)+.01*sin(t*.73)-uScroll*.05;
@@ -80,10 +82,10 @@ export function mountLens(canvas, hero, { reduced }) {
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   const loc = gl.getAttribLocation(prog, 'p');
   gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
-  const U = Object.fromEntries(['uRes', 'uTime', 'uMouse', 'uScroll', 'uCenter', 'uScale'].map((n) => [n, gl.getUniformLocation(prog, n)]));
+  const U = Object.fromEntries(['uRes', 'uTime', 'uMouse', 'uScroll', 'uCenter', 'uScale', 'uWarp'].map((n) => [n, gl.getUniformLocation(prog, n)]));
 
   const mouse = { x: 0, y: 0, tx: 0, ty: 0 };
-  let visible = true, scroll = 0, raf = 0;
+  let visible = true, scroll = 0, raf = 0, warp = 0, warpT = 0;
   const start = performance.now();
 
   function resize() {
@@ -104,6 +106,8 @@ export function mountLens(canvas, hero, { reduced }) {
     gl.uniform1f(U.uTime, (now - start) / 1000 + 4);
     gl.uniform2f(U.uMouse, mouse.x, mouse.y);
     gl.uniform1f(U.uScroll, scroll);
+    warp += (warpT - warp) * 0.08; warpT *= 0.92;
+    gl.uniform1f(U.uWarp, warp);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
   }
   function loop(now) { if (visible) frame(now); raf = requestAnimationFrame(loop); }
@@ -116,7 +120,7 @@ export function mountLens(canvas, hero, { reduced }) {
   }
   canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); cancelAnimationFrame(raf); fail(); });
   resize();
-  return { setScroll(v) { scroll = v; } };
+  return { setScroll(v) { scroll = v; }, setWarp(v) { warpT = Math.max(warpT, Math.min(1, Math.abs(v))); } };
 
-  function fail() { hero.classList.add('no-webgl'); return { setScroll() {} }; }
+  function fail() { hero.classList.add('no-webgl'); return { setScroll() {}, setWarp() {} }; }
 }

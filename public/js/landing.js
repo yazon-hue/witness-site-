@@ -3,9 +3,12 @@
 import { mountChrome, api, $, $$ } from './core.js';
 import { mountLens } from './lens.js';
 import { mountCloser } from './closer.js';
+import { initMotion } from './motion.js';
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+// GSAP drives the scroll choreography when it loaded; otherwise the simpler built-in motion runs
+const motionOn = !reduced && !!(window.gsap && window.ScrollTrigger);
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const lerp = (a, b, t) => a + (b - a) * t;
 const ease = (t) => 1 - Math.pow(1 - t, 3);
@@ -63,9 +66,8 @@ function buildTrace(svg) {
       links.forEach((bi) => {
         const hl = ai === path[ci] && bi === path[ci + 1];
         const el = document.createElementNS(NS, 'path');
-        el.setAttribute('d', curve(a, next[bi])); el.setAttribute('pathLength', '1');
+        el.setAttribute('d', curve(a, next[bi]));
         el.setAttribute('class', `e${hl ? ' hl' : ''}`);
-        el.style.strokeDasharray = '1'; el.style.strokeDashoffset = '1';
         gE.appendChild(el); edges++;
         items.push({ el, kind: 'e', at: ci / (layers.length - 1), hl });
       });
@@ -91,16 +93,29 @@ function buildTrace(svg) {
       items.push({ el: t, kind: 'l', at: ci / (layers.length - 1), hl });
     }
   }));
+  // a single straight line first: the trace that splits into the network
+  const first = layers[0][0], last = layers[layers.length - 1][path[layers.length - 1]];
+  const lead = document.createElementNS(NS, 'path');
+  lead.setAttribute('d', `M${first.x.toFixed(1)} ${first.y.toFixed(1)} L${last.x.toFixed(1)} ${first.y.toFixed(1)}`);
+  lead.setAttribute('class', 'e hl lead');
+  gE.appendChild(lead);
+  items.push({ el: lead, kind: 'lead', at: 0, hl: true });
+  for (const it of items) if (it.kind === 'e' || it.kind === 'lead') { it.len = it.el.getTotalLength() || 1; it.el.style.strokeDasharray = it.len; it.el.style.strokeDashoffset = it.len; }
   const nodes = layers.flat().length;
   const cap = $('.trace-caps span');
   if (cap) cap.textContent = `Fig. 02 — ${nodes} wallets · ${edges} transfers · 1 path`;
   return items;
 }
 
+let traceP = 0;
 function drawTrace(p) {
+  traceP = p;
+  // 0–0.12: one straight line draws; then it hands over to the network, which splits out of it
+  const net = clamp((p - 0.12) / 0.88);
   for (const it of tracePaths) {
-    const local = clamp((p - it.at * 0.75) / 0.25);
-    if (it.kind === 'e') it.el.style.strokeDashoffset = String(1 - ease(local));
+    if (it.kind === 'lead') { it.el.style.strokeDashoffset = it.len * (1 - ease(clamp(p / 0.12))); it.el.style.opacity = 1 - clamp((net - 0.05) / 0.25); continue; }
+    const local = clamp((net - it.at * 0.75) / 0.25);
+    if (it.kind === 'e') it.el.style.strokeDashoffset = it.len * (1 - ease(local));
     else { const v = clamp(local * 2.2); it.el.style.opacity = v; if (it.kind === 'n') it.el.style.transform = `scale(${lerp(0.2, 1, ease(v))})`; }
   }
 }
@@ -108,8 +123,9 @@ function drawTrace(p) {
 // ── 03 look closer ───────────────────────────────────────────────
 const stageEls = $$('#stages li');
 const hudDepth = $('#hud-depth'), hudNodes = $('#hud-nodes'), hudBar = $('#hud-bar');
-mountCloser($('#closer'), $('#net3d'), {
+const closerApi = mountCloser($('#closer'), $('#net3d'), {
   reduced,
+  external: motionOn,
   onStage(stage, p, count) {
     stageEls.forEach((li, i) => { li.classList.toggle('on', reduced || i === stage); li.classList.toggle('done', !reduced && i < stage); });
     hudDepth.textContent = `Depth ${String(stage + 1).padStart(2, '0')}`;
@@ -124,6 +140,7 @@ const frags = $$('.ev', evidence);
 const evLines = $('#ev-lines');
 frags.forEach(() => { const l = document.createElementNS('http://www.w3.org/2000/svg', 'line'); l.setAttribute('pathLength', '1'); evLines.appendChild(l); });
 const lineEls = $$('line', evLines);
+lineEls.forEach((l) => { l.setAttribute('x1', 300); l.setAttribute('y1', 300); l.setAttribute('x2', 300); l.setAttribute('y2', 300); });
 
 function drawEvidence(p) {
   const e = ease(clamp(p));
@@ -224,13 +241,13 @@ function onFrame() {
   if (y < lastY - 2) header.classList.remove('hide');
   lastY = y;
 
-  if (!reduced) {
+  if (fVisible) drawFinale();
+  if (!reduced && !motionOn) {
     lens.setScroll(clamp(y / innerHeight));
     const tp = progressOf($('.trace-art'), 0.95, 0.35);
     drawTrace(tp); traceSvg.style.setProperty('--pan', ease(tp).toFixed(4));
     drawEvidence(progressOf(evidence, 0.95, 0.45));
     drawDevice(progressOf($('#stage3d'), 1, 0.2));
-    if (fVisible) drawFinale();
   }
   requestAnimationFrame(onFrame);
 }
@@ -275,3 +292,44 @@ document.addEventListener('click', (e) => {
 addEventListener('pageshow', () => curtain.classList.remove('go'));
 
 requestAnimationFrame(onFrame);
+
+// ── signals travelling along the trace's lit path (once it is drawn) ──
+function startTraceSignals() {
+  const NS = 'http://www.w3.org/2000/svg';
+  const segs = $$('.e.hl:not(.lead)', traceSvg).map((el) => ({ el, len: el.getTotalLength() }));
+  const total = segs.reduce((a, b) => a + b.len, 0);
+  if (!total) return;
+  const sigs = [0, 0.33, 0.66].map((off) => {
+    const halo = document.createElementNS(NS, 'circle'); halo.setAttribute('r', 9); halo.setAttribute('class', 'trace-sig-halo');
+    const dot = document.createElementNS(NS, 'circle'); dot.setAttribute('r', 3.2); dot.setAttribute('class', 'trace-sig');
+    traceSvg.append(halo, dot); return { halo, dot, off };
+  });
+  const t0 = performance.now();
+  (function run(now) {
+    const on = traceP > 0.97;
+    for (const s of sigs) {
+      s.dot.style.opacity = s.halo.style.opacity = on ? 1 : 0;
+      if (!on) continue;
+      let d = (((now - t0) / 6000 + s.off) % 1) * total;
+      const seg = segs.find((g) => (d <= g.len ? true : ((d -= g.len), false))) || segs[segs.length - 1];
+      const pt = seg.el.getPointAtLength(Math.min(d, seg.len));
+      s.dot.setAttribute('cx', pt.x); s.dot.setAttribute('cy', pt.y); s.halo.setAttribute('cx', pt.x); s.halo.setAttribute('cy', pt.y);
+    }
+    requestAnimationFrame(run);
+  })(t0);
+}
+
+// ── scroll choreography ──
+if (motionOn) {
+  initMotion({
+    lens, drawTrace, traceSvg, startTraceSignals,
+    closer: closerApi,
+    evLines: lineEls,
+    device,
+    scrollFrame(p) {
+      try { const w = frame.contentWindow, d = w.document.documentElement; w.scrollTo(0, p * Math.max(0, d.scrollHeight - w.innerHeight)); } catch { /* frame not ready */ }
+    },
+  });
+} else if (!reduced) {
+  startTraceSignals();
+}
