@@ -256,16 +256,16 @@
 /* ── audio control & invitation ──────────────────────────────── */
 .nav-right{display:flex;align-items:center;gap:10px}
 .audio-ctl{position:relative}
-.audio-btn{height:40px;padding:0 14px;border-radius:8px;border:1px solid rgba(241,245,252,.22);background:transparent;color:var(--off);display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .3s,color .3s}
+.audio-btn{width:30px;height:30px;padding:0;border-radius:50%;border:1px solid rgba(241,245,252,.18);background:transparent;color:var(--off);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .3s,color .3s}
 .audio-btn:hover{border-color:var(--blue)}
-.audio-lbl{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:inherit;opacity:.8}
-.wave{display:inline-flex;align-items:center;gap:2px;height:14px}
+.audio-lbl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}  /* read by screen readers, hidden visually */
+.wave{display:inline-flex;align-items:center;gap:1.5px;height:12px}
 .wave i{width:2px;height:2px;border-radius:1px;background:currentColor;opacity:.75;transition:height .4s var(--ease)}
 .audio-ctl.on .wave i{background:var(--cyan);opacity:1}
 .audio-ctl.playing .wave i{animation:wv 1.1s ease-in-out infinite}
 .audio-ctl.playing .wave i:nth-child(2){animation-delay:-.3s}.audio-ctl.playing .wave i:nth-child(3){animation-delay:-.6s}.audio-ctl.playing .wave i:nth-child(4){animation-delay:-.85s}
-@keyframes wv{0%,100%{height:3px}50%{height:13px}}
-.audio-pop{position:absolute;right:0;top:48px;min-width:220px;padding:8px;border-radius:10px;background:var(--navy);border:1px solid var(--line2);box-shadow:0 20px 50px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:6px;z-index:30}
+@keyframes wv{0%,100%{height:3px}50%{height:11px}}
+.audio-pop{position:absolute;right:0;top:40px;min-width:220px;padding:8px;border-radius:10px;background:var(--navy);border:1px solid var(--line2);box-shadow:0 20px 50px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:6px;z-index:30}
 .audio-toggle{height:38px;border-radius:7px;border:1px solid var(--line2);background:transparent;color:var(--off);font-size:10px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer}
 .audio-toggle:hover{border-color:var(--blue)}
 .audio-ctl.on .audio-toggle{background:var(--off);color:var(--ink);border-color:var(--off)}
@@ -281,7 +281,6 @@
 .invite-x{width:32px;height:32px;border-radius:50%;border:0;background:transparent;color:var(--grey);font-size:16px;cursor:pointer}
 .invite-x:hover{color:var(--off)}
 @media (max-width:640px){
-  .audio-lbl{display:none}.audio-btn{padding:0 12px}
   .audio-invite{top:104px;width:calc(100% - 32px);justify-content:space-between}.audio-invite>span.mono{font-size:9px;letter-spacing:.14em}
 }
 

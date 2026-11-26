@@ -23,7 +23,8 @@ const WAVE = '<span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i>
 
 export function mountAudio({ header }) {
   if (!(window.AudioContext || window.webkitAudioContext)) return { closer() {} };
-  const pref = { on: false, vol: 0.6, ...load() };
+  const pref = { on: false, vol: 0.2, ...load() };          // volume starts at 20%
+  if (pref.vol === 0.6) pref.vol = 0.2;                      // the old default, never changed by the visitor
   let engine = null, scene = 'hero', lastStage = -1, impactArmed = true;
 
   // ── nav control (sits beside the wallet button) ────────────────
@@ -54,12 +55,15 @@ export function mountAudio({ header }) {
     const playing = pref.on && engine?.ctx.state === 'running';
     ctl.classList.toggle('on', pref.on); ctl.classList.toggle('playing', playing);
     lbl.textContent = pref.on ? 'Audio on' : 'Audio off';
+    btn.setAttribute('aria-label', `Sound settings (audio ${pref.on ? 'on' : 'off'})`);
+    btn.title = pref.on ? 'Audio on' : 'Audio off';
     toggle.textContent = pref.on ? 'Turn audio off' : 'Turn audio on';
     toggle.setAttribute('aria-pressed', String(pref.on));
   }
 
   async function enable() {
     pref.on = true; save(pref);
+    range.value = Math.round(pref.vol * 100);
     invite.classList.remove('show');
     if (!engine) { engine = new Sonic(); engine.vol = pref.vol; }
     engine.mix(SCENES[scene], 0.01);
