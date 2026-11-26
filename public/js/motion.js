@@ -34,6 +34,11 @@ function split(el) {
 
 export function initMotion(k) {
   gsap.registerPlugin(ScrollTrigger);
+  // Every timeline below assumes it is built at the top of the page. ScrollTrigger keeps its
+  // own memory of scroll positions across reloads; switch that off and start from the top.
+  ScrollTrigger.clearScrollMemory('manual');
+  const hash = location.hash;
+  window.scrollTo(0, 0);
   document.documentElement.classList.add('gsap');
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -221,4 +226,9 @@ export function initMotion(k) {
 
   // fonts change line widths; recalculate positions once they are in
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
+  // a link straight to a section (e.g. /#trace) still lands there, once everything is measured
+  if (hash) requestAnimationFrame(() => { const t = document.querySelector(hash); if (t) window.scrollTo(0, t.getBoundingClientRect().top + scrollY); });
+  // coming Back from another page restores this page from memory with its state intact;
+  // re-measure in case the window size changed while we were away
+  addEventListener('pageshow', (e) => { if (e.persisted) ScrollTrigger.refresh(); });
 }
